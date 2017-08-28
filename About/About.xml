@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+ <ModMetaData>
+	<name>BetterCopyBuilding</name>
+	<author>Steardliy</author>
+	<url></url>
+	<targetVersion>0.17.1557</targetVersion>
+	<description>This mod add a deep copy-building command to storage buildings such as a shelf.\nIt can copy the storage settings and the building simultaneously from original.\n\n[version 1.1.2]</description>
+ </ModMetaData>

@@ -1,0 +1,35 @@
+一部のSpecialFilterが表示されない原因の推察（もっと良い修正が出来る人と自分の為のメモ）
+
+1、Verse.ThingFilter.RecalculateDisplayRootCategory()は自身のthis.allowedDefsを用いてRootCategoryを作成している為、
+this.filter.DisplayRootCategory.catDef.DescendantThingDefsがデフォルトの設定しか含まない状態になる。
+例えば、shelfならweaponのDefsのみしか持たないRootCategoryが作成される。
+
+2、そのDescendantThingDefsを使ってCalculateHiddenSpecialFilters()がenumerable2を作成。しかし当然食品の項目などのThingDefは含まない為、
+腐敗品フィルターは出現しない
+これはこうすれば修正できるはず
+
+if (this.parentFilter != null)
+	{
+		enumerable2 = from x in enumerable2
+		where this.parentFilter.Allows(x)
+		select x;
+	}
+↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓
+if (this.parentFilter != null)
+	{
+		enumerable2 = this.parentFilter.DisplayRootCategory.catDef.DescendantThingDefs;
+		enumerable2 = from x in enumerable2
+		where this.parentFilter.Allows(x)
+		select x;
+	}
+
+一方でVerse.ThingFilter.RecalculateSpecialFilterConfigurability()の修正は面倒
+なぜなら、parentFilterが見えないから。このメソッドはListing_TreeThingFilterが持つべきだと思う。
+これはListing_TreeThingFilterの何処かにこの処理を追加すれば治るはずだけど・・・
+
+this.filter.allowedHitPointsConfigurable = this.parentFilter.allowedHitPointsConfigurable
+this.fllter.allowedQualitiesConfigurable = this.parentFilter.allowedQualitiesConfigurable
+
+正直、この修正をhookでやるのは面倒なので、DisplayRootCategoryをすべてRootNodeにすれば大味だけど問題なくなるはず。
+あるいは、チェックが変更される度にコールバック関数内でRecalculateDisplayRootCategory()を呼び出して再計算させれば、動的にメニューが出現してよさそう。
+でもたぶん重くなると思う。
